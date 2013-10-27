@@ -201,3 +201,19 @@ ul.contact li {
   width: 33.33%;
   text-align: center;
 }
+
+/** Overview **/
+body.overview {
+  padding: 50px;
+}
+body.overview h1 {
+  font-family: "PTMono";
+  font-size: 48px;
+  color: #73543E;
+}
+body.overview ul {
+  margin: 50px 50px;
+}
+body.overview p.copyright {
+  font-size: 12px;
+}

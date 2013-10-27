@@ -193,3 +193,22 @@ ul.contact {
     text-align: center;
   }
 }
+
+/** Overview **/
+body.overview {
+  padding: 50px;
+
+  h1 {
+    font-family: "PTMono";
+    font-size: $title-font-size;
+    color: #73543E;
+  }
+
+  ul {
+    margin: 50px 50px;
+  }
+
+  p.copyright {
+    font-size: 12px;
+  }
+}
