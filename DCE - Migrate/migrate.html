@@ -1,0 +1,356 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+
+    <meta name="description" content="Presentation über das Drupal Modul Migrate auf dem Drupal-Camp in Essen." />
+    <meta name="author" content="Marcel Meyer" />
+
+    <script src="js/highlight.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+
+    <link href="sass/stylesheets/style.css" rel="stylesheet">
+    <link href="sass/stylesheets/monokai.css" rel="stylesheet">
+
+    <title>Drupal Camp Essen - Migrate</title>
+
+    <script>
+      hljs.initHighlightingOnLoad();
+    </script>
+  </head>
+  <body class="impress-not-supported">
+    <div class="fallback-message">
+      <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+      <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+    </div>
+
+    <div class="progressbar"><div></div></div>
+
+    <div id="impress">
+
+      <div class="step title" data-x="0" data-y="0">
+        <h1>Migrate</h1>
+        <h4>eine kleine Einführung</h4>
+      </div>
+
+      <div class="step" data-x="1024" data-y="1024" data-z="-200" data-rotate="180">
+        <h1>Marcel Meyer</h1>
+        <p>Freiberuflicher Webentwickler</p>
+
+        <ul>
+          <li>Drupal seit 5 Jahren</li>
+        </ul>
+      </div>
+
+      <div class="step" data-x="-1024" data-y="-1024" data-z="500" data-scale="2" data-rotate="90">
+        <h1>Was ist Migrate?</h1>
+        <p><strong>Framework</strong> zum <i>einfachen</i> migrieren von jeglichen Daten nach Drupal!</p>
+      </div>
+
+      <div class="step" data-x="1500" data-y="-1500" data-z="-1500" data-rotate="270">
+        <h1>Was ist Migrate nicht?</h1>
+        <p>Ein typisches Drupal-Modul mit einer Oberfläche zum klicken.</p>
+        <p><i>Grundlegende (OOP) Programmierkenntnisse sollten vorhanden sein.</i></p>
+      </div>
+
+      <div class="step section" data-x="100" data-y="100" data-z="1500" data-rotate="90" data-scale="2">
+        <h1>Quellen & Ziele</h1>
+      </div>
+
+      <div class="step" data-x="3500" data-y="-850" data-rotate="270" data-scale="6">
+        <h1>Quellen</h1>
+        <p>Wo kommen die Daten her?</p>
+        <ul>
+          <li>MySQL</li>
+          <li>XML</li>
+          <li>CSV</li>
+          <li>JSON</li>
+          <li>...</li>
+        </ul>
+      </div>
+
+      <div class="step" data-x="6700" data-y="-300" data-scale="6">
+        <h1>Ziele</h1>
+        <p>Und wo sollen die Daten hin?</p>
+        <ul>
+          <li>Nodes</li>
+          <li>Users</li>
+          <li>Terms</li>
+          <li>Files</li>
+          <li>...</li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h1>und noch mehr...</h1>
+        <p>Es gibt Module, die Migrate mit Quellen, Zielen und Field-Handlern erweitern.</p>
+        <ul>
+          <li><a href="https://drupal.org/project/migrate_extras">Migrate Extras</a></li>
+          <li><a href="https://drupal.org/project/commerce_migrate">Migrate Commerce</a></li>
+          <li><a href="https://drupal.org/project/date">Date</a></li>
+        </ul>
+      </div>
+
+      <div class="step section" data-x="100" data-y="100" data-z="1500" data-rotate="90" data-scale="2">
+        <h1>Unsere erste Migration...</h1>
+      </div>
+
+      <div class="step" data-x="2825" data-y="2325" data-z="-3000" data-rotate="300" data-scale="1">
+        <h1>Aufbau einer Migration</h1>
+        <p>Migrate ist Objektorientiert - jede Migration ist eine eigene Klasse mit folgendem Aufbau:</p>
+        <ol>
+          <li>Quelle definieren</li>
+          <li>Ziel definieren</li>
+          <li>Felder mappen</li>
+          <li><strong>Fertig!</strong></li>
+        </ol>
+      </div>
+
+      <div class="step" data-x="200" data-y="100" data-z="1500" data-rotate="250" data-scale="6">
+        <h1>Migrate-Klasse definieren</h1>
+<pre><code class="php">class MyMigration extends Migration {
+
+  public function __construct() {
+    parent::__construct(MigrateGroup::getInstance('GVD'));
+  }
+
+}</code></pre>
+      </div>
+
+      <div class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4">
+        <h1>Quelle definieren</h1>
+        <p>Normaler Drupal-Bootstrap - daher alle gewohnten Funktionen wie z.B. DBAL verfügbar.</p>
+<pre><code class="php">...
+$query = Database::getConnection('other', 'database')
+  ->select('table', 'a');
+
+$query->leftJoin('other_table', 'b', 'a.id = b.id');
+
+$query->addField('a', 'field_a');
+$query->addField('b', 'field_b');
+
+$query->addExpression('GROUP_CONCAT(b.field_c)', 'tags');
+
+$this->source = new MigrateSourceSQL($query);
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="6000" data-y="4000" data-scale="2">
+        <h1>Ziel definieren</h1>
+<pre><code class="php">...
+$options = MigrateDestinationNode::options('de', 'plain_text');
+$this->destination = new MigrateDestinationNode(
+  'nodetype',
+  $options
+);
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="1000" data-y="2000" data-z="3500" data-rotate="180" data-scale="2">
+        <h1>Felder mappen</h1>
+<pre><code class="php">...
+$this->addFieldMapping('title', 'field_a');
+$this->addFieldMapping('uid')
+  ->defaultValue(1);
+$this->addFieldMapping('field_tags', 'tags')
+  ->separator(',');
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="1500" data-y="1000" data-z="1000" data-rotate="270" data-scale="4">
+        <h1>Mapping-Tabelle</h1>
+        <p>Migrate erstellt für jede Migration eine Mapping-Tabelle (<i>migrate_map_[name]</i>) um die Zuordnung zwischen Quelle und Ziel weiterhin zu gewährleisten.</p>
+<pre><code class="php">...
+$this->map = new MigrateSQLMap($this->machineName,
+  array(
+    'id' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'alias' => 'n',
+    ),
+  ),
+  MigrateDestinationNode::getKeySchema()
+);
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="100" data-y="200" data-z="-3500" data-rotate="90" data-scale="6">
+        <h1>Mapping-Tabelle</h1>
+        <p>Welche ID aus der Quelle hat jetzt welche ID im neuen System?</p>
+<pre><code class="sh">sourceid1    destid1
+1            2
+10           9
+100          87
+101          88</code></pre>
+      </div>
+
+      <div class="step">
+        <h1>Referenz auf andere Migrationen</h1>
+        <p>Durch diese Information können wir jetzt die Zuordnung aus der Quelle beibehalten. z.B. bei Autoren von Blog-Artikeln:</p>
+<pre><code class="php">...
+$this->addFieldMapping('uid')
+  ->sourceMigration('Users')
+  ->defaultValue(1);
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="100" data-y="100" data-z="1500" data-rotate="90" data-scale="6">
+        <h1>Status der Migration abfragen</h1>
+        <p>drush migrate-status (ms)</p>
+<pre><code class="sh">drush ms
+
+Group: GVD     Total  Importiert  Nicht importiert
+Companies      113    113         0
+CompanyLogos   18     17          0
+Industries     100    100         0
+Profiles       122    122         0
+Users          122    122         0</code></pre>
+      </div>
+
+      <div class="step" data-x="1500" data-y="1500" data-z="-1500" data-rotate="220" data-scale="4">
+        <h1>Weitere Möglichkeiten</h1>
+        <ul>
+          <li>Import (drush mi mymigration)</li>
+          <li>Update (drush mi --update mymigration)</li>
+          <li>Rollback (drush mr mymigration)</li>
+        </ul>
+      </div>
+
+      <div class="step section" data-x="100" data-y="100" data-z="1500" data-rotate="90" data-scale="2">
+        <h1>Subfields von Fields</h1>
+      </div>
+
+      <div class="step" data-x="3000" data-y="1500" data-z="-100" data-rotate="270" data-scale="4">
+        <h1>Was ist ein Subfield?</h1>
+        <p>Ein Feld auf das gemappt werden kann, kann mehrere Subfields haben, in die ebenfalls migriert werden kann (z.B. ein <i>Imagefield</i>):</p>
+<pre><code class="sh">Subfield: Language for the field    field_logo:language
+Subfield: alt value                 field_logo:alt
+Subfield: title value               field_logo:title</code></pre>
+      </div>
+
+      <div class="step section" data-x="1000" data-y="2000" data-z="3500" data-rotate="180" data-scale="2">
+        <h1>Datenmanipulation</h1>
+      </div>
+
+      <div class="step" data-x="2500" data-y="2500" data-z="500" data-rotate="270" data-scale="6">
+        <h1>Mögliche Eingriffspunkte</h1>
+<pre><code class="php">// vor dem Field-Mapping
+public function prepareRow($row) {}
+
+// vor dem Speichern
+public function prepare($entity, $row) {}
+
+// nach dem Speichern
+public function complete($entity, $row) {}
+
+// vor bzw. nach dem gesamten Import
+public function preImport() {}
+public function postImport() {}
+
+// vor bzw. nach dem Rollback
+public function preRollback() {}
+public function postRollback() {}</code></pre>
+      </div>
+
+      <div class="step">
+        <h1>Beispiel der Datenmanipulation</h1>
+<pre><code class="php">...
+public function prepareRow($row) {
+  if(!empty($row->urls)) {
+    $urls = explode(',', $row->urls);
+    $checked = array();
+
+    foreach($urls as $url) {
+      if(substr($url, 0, 7) !== 'http://') {
+        $url = 'http://' . $url;
+      }
+      if (valid_url($url, TRUE)) {
+        $checked[] = $url;
+      }
+    }
+
+    $checked = array_unique($checked);
+    $row->urls = implode(',', $checked);
+  }
+}
+...</code></pre>
+      </div>
+
+      <div class="step section" data-x="1500" data-y="2000" data-z="-1500" data-rotate="90" data-scale="6">
+        <h1>Migration::SOURCE<br> vs.<br> Migration::DESTINATION</h1>
+      </div>
+
+      <div class="step" data-x="1500" data-y="2500" data-z="2500" data-rotate="360" data-scale="4">
+        <h1>Migration::SOURCE</h1>
+        <p>Erstellt einen neuen Node und <strong>überschreibt</strong> die vorhandenen Felder.</p>
+      </div>
+
+      <div class="step" data-x="100" data-y="100" data-z="1500" data-rotate="90" data-scale="2">
+        <h1>Problem</h1>
+        <p>Inhaltstyp <i>Firma</i> hat ein Feld <i>Adresse</i> vom Typ <i>Fieldcollection</i>.</p>
+        <p>Migration <i>Firmen</i> und <i>Adressen</i> läuft problemlos durch, alles scheint in Ordnung.</p>
+        <p>Erneute Migration von <i>Firmen</i> löscht das Feld <i>Adressen</i> (bzw. die Referenz auf die Fieldcollection).</p>
+      </div>
+
+      <div class="step" data-x="250" data-y="1800" data-z="3000" data-rotate="260" data-scale="4">
+        <h1>Migration::DESTINATION</h1>
+        <p>Lädt einen vorhandenen Node (node_load) und <strong>ergänzt</strong> die neuen Felder.</p>
+        <p><strike>Nachteil:</strike> es werden auch keine neuen Nodes erstellt.</p>
+      </div>
+
+      <div class="step section" data-x="1000" data-y="2000" data-z="3500" data-rotate="180" data-scale="2">
+        <h1>Migration von Dateien</h1>
+      </div>
+
+      <div class="step" data-x="250" data-y="1800" data-z="3000" data-rotate="260" data-scale="4">
+        <h1>Von wo kommen die Dateien?</h1>
+        <p>Dateien können direkt von einer URL oder vom lokalen Filesystem migriert werden.</p>
+        <p>Eigene Migration sinnvoll, wenn viele Dateien migriert werden sollen.</p>
+      </div>
+
+      <div class="step">
+        <h1>Das Phänomen von verschwundenen Dateien</h1>
+        <p>Wird ein Node mit einem Filefield gelöscht, wird auch dessen Datei gelöscht. Die Dateimigration bekommt davon aber nichts mit und sagt das Bild sei noch vorhanden. Die Lösung ist ganz einfach:</p>
+<pre><code class="php">...
+$this->addFieldMapping('field_logo:preserve_files')
+  ->defaultValue(TRUE);
+...</code></pre>
+      </div>
+
+      <div class="step" data-x="1500" data-y="100" data-z="-1500" data-rotate="90" data-scale="2">
+        <h1>Best Practise</h1>
+        <ul>
+          <li>lieber mehrere kleine Migrationen als eine Große</li>
+          <li>Daten vor der Migration aggregieren (z.B. MySQL-Views) um zu viele Joins zu vermeiden</li>
+          <li>field:preserve_files <strong>vorsorglich immer</strong> auf TRUE</li>
+          <li><strong>Drush benutzen!</strong></li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h1>Getting started</h1>
+        <ul>
+          <li><a href="http://comm-press.de/de/blog/von-alt-nach-drupal-migrieren-wird-zum-kinderspiel">Blog-Artikel</a></li>
+          <li><a href="https://drupal.org/node/415260">Migrate Dokumentation</a></li>
+          <li>Beispielmigrationen im Migrate-Modul</li>
+        </ul>
+      </div>
+
+      <div class="step section end" data-x="1500" data-y="1500" data-z="-1500" data-rotate="220" data-scale="4">
+        <h1>Vielen Dank!</h1>
+        <ul class="contact">
+          <li>@ixtends</li>
+          <li>kontakt@devdu.de</li>
+          <li>http://devdu.de</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <script src="js/impress.js"></script>
+    <script src="js/impress-progress.js"></script>
+    <script src="js/impress-hide.js"></script>
+    <script>impress().init();</script>
+  </body>
+</html>
